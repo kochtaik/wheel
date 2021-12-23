@@ -16,17 +16,34 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="format-detection" content="telephone=no" />
     <style>
-      input {
-        margin: 1rem;
+      .error {
+        color: red;
+        display: none;
+      }
+
+      .show-error {
+        display: block;
+      }
+      .input-validation {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
       }
     </style>
   </head>
   <body>
     <div class="appContainer">
-      <label for="winning-value">
-        Enter winning value (5 - 25):
-        <input type="number" id="winning-value" step="5" min="5" max="25" />
-      </label>
+      <form id="winning-form">
+        <label for="winning-value">
+          <span>Enter winning value (5 - 25):</span>
+          <div class="input-validation">
+            <input type="number" id="winning-value" step="5" min="5" max="25" />
+            <div class="error">Value must be multiple of 5</div>
+          </div>
+        </label>
+        <button type="submit" id="submit">Submit</button>
+        <span>Your value is <strong id="output"></strong></span>
+      </form>
       <div id="app" class="app">
         <div id="canvas" class="canvas"></div>
       </div>
