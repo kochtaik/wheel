@@ -9,7 +9,7 @@ export class TestGame {
   private wheelTongue: PIXI.Sprite;
   private button: PIXI.Sprite;
   private sectors: Array<PIXI.Container>;
-
+  private winningValue: Number;
   public initialize(): void {
     const appOptions: any = {
       width: 800,
@@ -26,6 +26,9 @@ export class TestGame {
     this.loadResources();
     this.addFace();
     this.addInteractions();
+    this.addListeners();
+
+    this.app.ticker.add(() => {});
   }
 
   protected loadResources(): void {
@@ -35,6 +38,7 @@ export class TestGame {
     this.wheel.x = 400;
     this.wheel.y = 300;
     this.container.addChild(this.wheel);
+    // this.wheel.rotation = 0.523;
 
     const tongueTexture: PIXI.Texture = PIXI.Texture.from(
       "resources/wheel_tongue.png"
@@ -55,6 +59,20 @@ export class TestGame {
     this.container.addChild(this.button);
   }
 
+  private addListeners() {
+    const input = document.querySelector("#winning-value") as HTMLInputElement;
+
+    input.addEventListener("input", (e) => {
+      const value = parseInt(input.value);
+      if (value <= 0 || value > 25 || value % 5 !== 0) return;
+      this.setWinningValue(value);
+    });
+  }
+
+  private setWinningValue(value: number) {
+    this.winningValue = value;
+  }
+
   addFace() {
     const radius = 170;
     this.sectors = [];
@@ -62,7 +80,9 @@ export class TestGame {
     container.pivot.set(350, 10);
 
     for (let i = 0; i < 6; i += 1) {
-      const number = new PIXI.Text(String((i + 1) * 5));
+      const content = String((i + 1) * 5);
+      const number = new PIXI.Text(content);
+      number.name = content;
       number.position.set(
         radius / 0.9 + (Math.cos((i / 6) * Math.PI * 2) * radius) / 1.5,
         radius / 0.9 + (Math.sin((i / 6) * Math.PI * 2) * radius) / 1.5
@@ -75,38 +95,21 @@ export class TestGame {
     this.wheel.addChild(container);
   }
 
-  addInteractions() {
+  protected addInteractions() {
     this.button.interactive = true;
     this.button.buttonMode = true;
+
     this.button.on("pointerdown", () => {
-      console.log("wah!");
       this.button.scale.x = 0.9;
       this.button.scale.y = 0.9;
-      const duration = 5;
+      const duration = 2;
       gsap.to(this.wheel, {
         duration: duration,
-        rotation: getRandomInRange(10, 20),
+        rotation: getRandomInRange(6.283, 18.849),
       });
 
-      setTimeout(() => {
-        const tongueBounds = this.wheelTongue.getBounds();
-        const nearest = this.sectors.reduce((acc, value) => {
-          const valueDistance = {
-            x: Math.abs(tongueBounds.x - value.getBounds().x),
-            y: Math.abs(tongueBounds.y - value.getBounds().y),
-          };
-          if (!acc) acc = value;
-
-          if (valueDistance.x < acc.x && valueDistance.y < acc.y) acc = value;
-          return acc;
-        }, null);
-
-        const degrees = this.sectors.indexOf(nearest) * 60;
-        gsap.to(this.wheel, {
-          duration: 1,
-          rotation: (degrees * Math.PI) / 180,
-        });
-      }, duration * 1000);
+      setTimeout(this.alignWheel.bind(this), duration * 1000);
+      // this.checkIfWon();
     });
 
     this.button.on("pointerup", () => {
@@ -114,6 +117,21 @@ export class TestGame {
       this.button.scale.y = 1;
     });
   }
+
+  protected alignWheel() {
+    const currentAngle = this.wheel.angle;
+
+    const nearest = Math.round(currentAngle / 60) * 60;
+
+    gsap.to(this.wheel, {
+      duration: 1,
+      angle: nearest,
+    });
+
+    // this.checkIfWon();
+  }
+
+  checkIfWon() {}
 
   rotate(delta: number) {
     const rotation = this.easeOutCubic(delta);
