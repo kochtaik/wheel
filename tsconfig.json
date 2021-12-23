@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "lib": ["es6", "es2015.promise", "dom", "scripthost"],
+    "module": "commonjs",
+    "sourceMap": true,
+    "strict": true,
+    "esModuleInterop": true,
+    "strictNullChecks": false,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": true,
+    "typeRoots": ["./src/typings"]
+  },
+  "exclude": ["node_modules"]
+}
